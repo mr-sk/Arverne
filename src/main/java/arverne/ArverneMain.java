@@ -23,8 +23,37 @@ public class ArverneMain {
 
         l.setLevel(Level.INFO);
         l.info("Arverne startup");
+
+        l.info("Executing R Model");
+        ArverneModel.execute();
     }
 }
+
+class ArverneModel {
+
+    static public void execute() {
+        // Test executing R code
+        try {
+            String cmd = "Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/cdf-cl.r"
+                       + " 103.00"
+                       + " 103.06"
+                       + " 50";
+            Process proc = Runtime.getRuntime().exec(cmd);
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String s = null;
+            while((s = stdInput.readLine()) != null) {
+                System.out.println(s);
+            }
+
+        } catch (IOException e) {
+           e.printStackTrace();
+           throw new RuntimeException("Unable to execute R script");
+        }
+    }
+
+}
+
 
 class ArverneLogger {
 
