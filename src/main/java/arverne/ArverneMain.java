@@ -34,10 +34,10 @@ class ArverneModel {
     static public void execute() {
         // Test executing R code
         try {
-            String cmd = "Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/cdf-cl.r"
-                       + " 103.00"
-                       + " 103.06"
-                       + " 50";
+            String cmd = String.format("Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/cdf-cl.r %s %s %s"
+                       ,103.00
+                       ,103.06
+                       ,50);
             Process proc = Runtime.getRuntime().exec(cmd);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
