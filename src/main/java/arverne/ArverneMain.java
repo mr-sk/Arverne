@@ -66,7 +66,7 @@ class ArverneModel {
                     currentPrice,
                     strikePrice,
                     cost);
-            System.out.println(cmd);
+            Process proc = Runtime.getRuntime().exec(cmd);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             while((s = stdInput.readLine()) != null) {
