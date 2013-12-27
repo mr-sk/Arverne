@@ -25,33 +25,54 @@ public class ArverneMain {
         l.info("Arverne startup");
 
         l.info("Executing R Model");
-        ArverneModel.execute();
+        Integer result = ArverneModel.execute(
+                ArverneModel.Models.CDF,
+                103.00,
+                103.06,
+                30.00);
+        System.out.println("Model result: " + result);
     }
 }
 
 class ArverneModel {
 
-    static public void execute() {
-        // Test executing R code
+    enum Models {
+        CDF // Currently Cumulative Distribution Frequency is the only model supported
+    };
+
+    static public Integer execute(Models model, Double currentPrice, Double strikePrice, Double cost) {
+
+        String s;
+
         try {
-            String cmd = String.format("Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/cdf-cl.r %s %s %s"
-                       ,103.00
-                       ,103.06
-                       ,50);
+            String scriptName;
+            switch (model) {
+                case CDF:
+                    scriptName = String.format("cdf-cl.r");
+                    break;
+                default:
+                    throw new RuntimeException("Unknown model type: " + model);
+            }
+
+            String cmd = String.format("Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/%s %s %s %s",
+                       scriptName,
+                       currentPrice,
+                       strikePrice,
+                       cost);
             Process proc = Runtime.getRuntime().exec(cmd);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String s = null;
             while((s = stdInput.readLine()) != null) {
-                System.out.println(s);
+                break;
             }
 
         } catch (IOException e) {
            e.printStackTrace();
            throw new RuntimeException("Unable to execute R script");
         }
-    }
 
+        return Integer.parseInt(s.substring(4));
+    }
 }
 
 
