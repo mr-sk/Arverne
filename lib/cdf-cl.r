@@ -1,5 +1,5 @@
 
-data <- read.csv("/Users/ben/Personal/Projects/CDF_Currency_R/USDJPY_hour.csv")
+data <- read.csv("tradedata/USDJPY_hour.csv")
 tsData = ts(data[,4])
 cdf = quantile(diff(tsData), 0:100/100)
 indices <- 0:100/100
