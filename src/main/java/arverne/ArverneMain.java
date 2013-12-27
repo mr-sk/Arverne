@@ -40,6 +40,10 @@ class ArverneModel {
         CDF // Currently Cumulative Distribution Frequency is the only model supported
     };
 
+    private final static String libPath  = "lib/";
+    private final static String rBinary  = "Rscript";
+    private final static String cdfR     = "cdf-cl.r";
+
     static public Integer execute(Models model, Double currentPrice, Double strikePrice, Double cost) {
 
         String s;
@@ -48,18 +52,21 @@ class ArverneModel {
             String scriptName;
             switch (model) {
                 case CDF:
-                    scriptName = String.format("cdf-cl.r");
+                    scriptName = String.format(ArverneModel.cdfR);
                     break;
                 default:
                     throw new RuntimeException("Unknown model type: " + model);
             }
 
-            String cmd = String.format("Rscript /Users/Ben/Personal/Projects/CDF_Currency_R/%s %s %s %s",
-                       scriptName,
-                       currentPrice,
-                       strikePrice,
-                       cost);
-            Process proc = Runtime.getRuntime().exec(cmd);
+            String cmd = String.format("%s%s %s%s %s %s %s",
+                    ArverneModel.libPath,
+                    ArverneModel.rBinary,
+                    ArverneModel.libPath,
+                    scriptName,
+                    currentPrice,
+                    strikePrice,
+                    cost);
+            System.out.println(cmd);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             while((s = stdInput.readLine()) != null) {
