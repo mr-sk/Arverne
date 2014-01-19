@@ -22,4 +22,6 @@ dependencies {
     groovy "org.codehaus.groovy:groovy-all:1.6.5"
     compile "org.spockframework:spock-core:0.2"
     compile "junit:junit:4.6"
+
+    compile fileTree(dir: 'lib', includes: ['*.jar'])
 }
