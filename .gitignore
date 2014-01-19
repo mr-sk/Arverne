@@ -3,3 +3,7 @@ out/
 log.txt
 .gradle
 .idea
+.DS_Store
+._.DS_Store
+src/main/main.iml
+src/test/test.iml

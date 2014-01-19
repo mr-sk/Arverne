@@ -40,7 +40,7 @@ class ArverneModel {
         CDF // Currently Cumulative Distribution Frequency is the only model supported
     };
 
-    private final static String libPath  = "lib/";
+    private final static String rPath  = "/usr/bin/";
     private final static String rBinary  = "Rscript";
     private final static String cdfR     = "cdf-cl.r";
 
@@ -58,10 +58,9 @@ class ArverneModel {
                     throw new RuntimeException("Unknown model type: " + model);
             }
 
-            String cmd = String.format("%s%s %s%s %s %s %s",
-                    ArverneModel.libPath,
+            String cmd = String.format("%s%s lib/%s %s %s %s", // /usr/bin/Rscript lib/cdf.r x y z
+                    ArverneModel.rPath,
                     ArverneModel.rBinary,
-                    ArverneModel.libPath,
                     scriptName,
                     currentPrice,
                     strikePrice,
