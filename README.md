@@ -7,7 +7,8 @@ Algorithmic Trading -- Much to do, not much to talk about at this point. Just la
 Installation
 
 * Java
-  * sudo apt-get install openjdk-6-jre  
+  * apt-get install openjdk-6-jre  
+  * apt-get install openjdk-6-jdk
 * R
   * apt-get install r-base r-base-dev
 * Gradle (Can't use apt-get. See http://www.mail-archive.com/s4-dev@incubator.apache.org/msg00209.html)
@@ -21,6 +22,13 @@ Installation
   * apt-get install git 
 * Clone repo
   * git clone https://github.com/mr-sk/Arverne
+  
+
+Application Setup
+
+* Settings
+  * cp sessionSettings.fill-in sessionSettings.txt 
+  * Fill out sessionSettings.txt
   
 
 Running
