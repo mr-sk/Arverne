@@ -4,6 +4,7 @@ import quickfix.*;
 import quickfix.Message;
 import quickfix.MessageCracker;
 import quickfix.MessageFactory;
+import quickfix.field.Password;
 import quickfix.fix44.Logon;
 import quickfix.fix50.*;
 
@@ -173,6 +174,7 @@ class ArverneFIX extends MessageCracker implements Application {
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
         System.out.println("Inside toAdmin");
+        System.out.println("Message: " + message.toString());
     }
 
     @Override
