@@ -13,6 +13,7 @@ gradlew.bat
 src/main/main.iml
 src/test/test.iml
 
+properties.txt
 sessionSettings.txt
 incoming/
 outgoing/

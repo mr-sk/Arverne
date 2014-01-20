@@ -4,12 +4,15 @@ import quickfix.*;
 import quickfix.Message;
 import quickfix.MessageCracker;
 import quickfix.MessageFactory;
+import quickfix.field.HeartBtInt;
 import quickfix.field.Password;
+import quickfix.field.Username;
 import quickfix.fix44.Logon;
 import quickfix.fix50.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,12 +46,12 @@ public class ArverneMain {
             SessionID sessionId = socketInitiator.getSessions().get(0);
             ArverneFIX.sendLogonRequest(sessionId);
 
-
             int i = 0;
             do {
                 try {
                     Thread.sleep(1000);
                     System.out.println(socketInitiator.isLoggedOn());
+                    System.out.println(socketInitiator.getSettings());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -143,6 +146,9 @@ class ArverneLogger {
 
 
 class ArverneFIX extends MessageCracker implements Application {
+
+    private Properties p;
+
     @Override
     public void fromAdmin(Message arg0, SessionID arg1) throws FieldNotFound,
             IncorrectDataFormat, IncorrectTagValue, RejectLogon {
@@ -175,12 +181,16 @@ class ArverneFIX extends MessageCracker implements Application {
 
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
+        try {
         System.out.println("Inside toAdmin");
-
         System.out.println("Message: " + message.toString());
-        System.out.println("XML: " + message.toXML());
+        System.out.println("XML: " + message.toXML(new DataDictionary("lib/quickfixj-all-1.5.3.jar!/FIX50SP2.xml")));
         System.out.println("Header: " + message.getHeader());
         System.out.println("Trailer: " + message.getTrailer());
+        } catch (ConfigError e) {
+            e.printStackTrace();
+            throw new RuntimeException("DataDictionary error");
+        }
     }
 
     @Override
@@ -195,9 +205,27 @@ class ArverneFIX extends MessageCracker implements Application {
         quickfix.Message.Header header = logon.getHeader();
 
         header.setField(new quickfix.field.BeginString("FIXT.1.1"));
+        header.setField(new quickfix.field.MsgType("A"));
+
+        Properties p = loadProperties();
+        logon.set(new quickfix.field.Username(p.getProperty("username")));
+        logon.set(new quickfix.field.Password(p.getProperty("password")));
+
         logon.set(new quickfix.field.HeartBtInt(30));
         logon.set(new quickfix.field.ResetSeqNumFlag(true));
         boolean sent = Session.sendToTarget(logon, sessionId);
         System.out.println("Logon Message Sent : " + sent);
+    }
+
+    public static Properties loadProperties() {
+        Properties p = new Properties();
+        try {
+            p.load(new FileInputStream("properties.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to load properties");
+        }
+
+        return p;
     }
 }
