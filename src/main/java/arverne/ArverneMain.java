@@ -174,8 +174,11 @@ class ArverneFIX extends MessageCracker implements Application {
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
         System.out.println("Inside toAdmin");
+
         System.out.println("Message: " + message.toString());
         System.out.println("XML: " + message.toXML());
+        System.out.println("Header: " + message.getHeader());
+        System.out.println("Trailer: " + message.getTrailer());
     }
 
     @Override
@@ -189,7 +192,7 @@ class ArverneFIX extends MessageCracker implements Application {
         quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
         quickfix.Message.Header header = logon.getHeader();
 
-        header.setField(new quickfix.field.BeginString("FIX.5.0SP2"));
+        header.setField(new quickfix.field.BeginString("FIX.5.0"));
         logon.set(new quickfix.field.HeartBtInt(30));
         logon.set(new quickfix.field.ResetSeqNumFlag(true));
         boolean sent = Session.sendToTarget(logon, sessionId);
