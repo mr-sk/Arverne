@@ -175,6 +175,7 @@ class ArverneFIX extends MessageCracker implements Application {
     public void toAdmin(Message message, SessionID sessionId) {
         System.out.println("Inside toAdmin");
         System.out.println("Message: " + message.toString());
+        System.out.println("XML: " + message.toXML());
     }
 
     @Override
