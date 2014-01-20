@@ -4,6 +4,7 @@ import quickfix.*;
 import quickfix.Message;
 import quickfix.MessageCracker;
 import quickfix.MessageFactory;
+import quickfix.field.DefaultApplVerID;
 import quickfix.field.HeartBtInt;
 import quickfix.field.Password;
 import quickfix.field.Username;
@@ -213,6 +214,8 @@ class ArverneFIX extends MessageCracker implements Application {
 
         logon.set(new quickfix.field.HeartBtInt(30));
         logon.set(new quickfix.field.ResetSeqNumFlag(true));
+        logon.set(new quickfix.field.DefaultApplVerID("FIXSP02"));
+
         boolean sent = Session.sendToTarget(logon, sessionId);
         System.out.println("Logon Message Sent : " + sent);
     }
