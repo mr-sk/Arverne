@@ -53,7 +53,7 @@ public class ArverneMain {
                     e.printStackTrace();
                 }
                 i++;
-            } while ((!socketInitiator.isLoggedOn()) && (i < 30));
+            } while ((!socketInitiator.isLoggedOn()) && (i < 5));
 
         } catch (ConfigError e) {
             e.printStackTrace();
