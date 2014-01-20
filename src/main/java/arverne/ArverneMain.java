@@ -185,10 +185,11 @@ class ArverneFIX extends MessageCracker implements Application {
 
     public static void sendLogonRequest(SessionID sessionId)
             throws SessionNotFound {
+
         quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
         quickfix.Message.Header header = logon.getHeader();
 
-        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
+        header.setField(new quickfix.field.BeginString("FIX.5.0SP2"));
         logon.set(new quickfix.field.HeartBtInt(30));
         logon.set(new quickfix.field.ResetSeqNumFlag(true));
         boolean sent = Session.sendToTarget(logon, sessionId);
