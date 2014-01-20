@@ -63,7 +63,7 @@ public class ArverneMain {
             e.printStackTrace();
             throw new RuntimeException("Session error");
         }
-
+        /*
         l.info("Executing R Model");
         Integer result = ArverneModel.execute(
                 ArverneModel.Models.CDF,
@@ -71,6 +71,8 @@ public class ArverneMain {
                 103.06,
                 30.00);
         System.out.println("Model result: " + result);
+        */
+        l.info("Arverne shutdown");
     }
 }
 
@@ -192,7 +194,7 @@ class ArverneFIX extends MessageCracker implements Application {
         quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
         quickfix.Message.Header header = logon.getHeader();
 
-        header.setField(new quickfix.field.BeginString("FIX.5.0"));
+        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
         logon.set(new quickfix.field.HeartBtInt(30));
         logon.set(new quickfix.field.ResetSeqNumFlag(true));
         boolean sent = Session.sendToTarget(logon, sessionId);
