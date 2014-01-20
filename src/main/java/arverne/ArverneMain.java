@@ -51,7 +51,6 @@ public class ArverneMain {
                 try {
                     Thread.sleep(1000);
                     System.out.println(socketInitiator.isLoggedOn());
-                    System.out.println(socketInitiator.getSettings());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -185,6 +184,7 @@ class ArverneFIX extends MessageCracker implements Application {
         System.out.println("Inside toAdmin");
         System.out.println("Message: " + message.toString());
         System.out.println("XML: " + message.toXML(new DataDictionary("lib/quickfixj-all-1.5.3.jar!/FIX50SP2.xml")));
+        System.out.println("XML: " + message.toXML());
         System.out.println("Header: " + message.getHeader());
         System.out.println("Trailer: " + message.getTrailer());
         } catch (ConfigError e) {
