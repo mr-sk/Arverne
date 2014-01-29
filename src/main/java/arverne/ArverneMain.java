@@ -45,7 +45,7 @@ public class ArverneMain {
                     fileStoreFactory, settings, logFactory, messageFactory);
             socketInitiator.start();
             SessionID sessionId = socketInitiator.getSessions().get(0);
-            ArverneFIX.sendLogonRequest(sessionId);
+//            ArverneFIX.sendLogonRequest(sessionId);
 
             int i = 0;
             do {
@@ -56,16 +56,18 @@ public class ArverneMain {
                     e.printStackTrace();
                 }
                 i++;
-            } while ((!socketInitiator.isLoggedOn()) && (i < 5));
+            } while ((!socketInitiator.isLoggedOn())/* && (i < 5) */);
+            
+            socketInitiator.stop(true);
 
         } catch (ConfigError e) {
             e.printStackTrace();
             e.getMessage();
             throw new RuntimeException("Unable to load session settings");
-        } catch (SessionNotFound e) {
+        } /*catch (SessionNotFound e) {
             e.printStackTrace();
             throw new RuntimeException("Session error");
-        }
+        } */
         /*
         l.info("Executing R Model");
         Integer result = ArverneModel.execute(
@@ -148,6 +150,10 @@ class ArverneLogger {
 class ArverneFIX extends MessageCracker implements Application {
 
     private Properties p;
+	
+	public ArverneFIX() {
+        p = loadProperties();
+	}
 
     @Override
     public void fromAdmin(Message arg0, SessionID arg1) throws FieldNotFound,
@@ -181,6 +187,10 @@ class ArverneFIX extends MessageCracker implements Application {
 
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
+
+    	message.setString(quickfix.field.Username.FIELD, p.getProperty("username"));
+    	message.setString(quickfix.field.Password.FIELD, p.getProperty("password"));
+        
         try {
         System.out.println("Inside toAdmin");
         System.out.println("Message: " + message.toString());
@@ -199,26 +209,26 @@ class ArverneFIX extends MessageCracker implements Application {
         System.out.println("Message : " + arg0 + " for sessionid : " + arg1);
     }
 
-    public static void sendLogonRequest(SessionID sessionId)
-            throws SessionNotFound {
-
-        quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
-        quickfix.Message.Header header = logon.getHeader();
-
-        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
-        header.setField(new quickfix.field.MsgType("A"));
-
-        Properties p = loadProperties();
-        logon.set(new quickfix.field.Username(p.getProperty("username")));
-        logon.set(new quickfix.field.Password(p.getProperty("password")));
-
-        logon.set(new quickfix.field.HeartBtInt(30));
-        logon.set(new quickfix.field.ResetSeqNumFlag(true));
-        logon.set(new quickfix.field.DefaultApplVerID("FIXSP02"));
-
-        boolean sent = Session.sendToTarget(logon, sessionId);
-        System.out.println("Logon Message Sent : " + sent);
-    }
+//    public static void sendLogonRequest(SessionID sessionId)
+//            throws SessionNotFound {
+//
+//        quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
+//        quickfix.Message.Header header = logon.getHeader();
+//
+//        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
+//        header.setField(new quickfix.field.MsgType("A"));
+//
+//        Properties p = loadProperties();
+//        logon.set(new quickfix.field.Username(p.getProperty("username")));
+//        logon.set(new quickfix.field.Password(p.getProperty("password")));
+//
+//        logon.set(new quickfix.field.HeartBtInt(30));
+//        logon.set(new quickfix.field.ResetSeqNumFlag(true));
+//        logon.set(new quickfix.field.DefaultApplVerID("FIXSP02"));
+//
+//        boolean sent = Session.sendToTarget(logon, sessionId);
+//        System.out.println("Logon Message Sent : " + sent);
+//    }
 
     public static Properties loadProperties() {
         Properties p = new Properties();
