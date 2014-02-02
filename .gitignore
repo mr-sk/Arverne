@@ -12,6 +12,7 @@ gradlew.bat
 ._.DS_Store
 src/main/main.iml
 src/test/test.iml
+*bak
 
 properties.txt
 sessionSettings.txt

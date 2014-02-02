@@ -45,9 +45,7 @@ public class ArverneMain {
 								    fileStoreFactory, settings, logFactory, messageFactory);
             socketInitiator.start();
             SessionID sessionId = socketInitiator.getSessions().get(0);
-	    //            ArverneFIX.sendLogonRequest(sessionId);
 
-            int i = 0;
             do {
                 try {
                     Thread.sleep(1000);
@@ -55,9 +53,23 @@ public class ArverneMain {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                i++;
-            } while ((!socketInitiator.isLoggedOn())/* && (i < 5) */);
-            
+            } while ((!socketInitiator.isLoggedOn()));
+
+            // Successfully Logged on at this point -- enter run loop
+            int iter = 0;
+            do {
+                try {
+                    System.out.println("Main Thread ...");
+                    Thread.sleep(2000);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                ++iter;
+            } while(iter < 5);
+
+            System.out.println("Sending logout");
             socketInitiator.stop();
 
         } catch (ConfigError e) {
@@ -68,6 +80,8 @@ public class ArverneMain {
             e.printStackTrace();
             throw new RuntimeException("Session error");
 	    } */
+
+
         /*
         l.info("Executing R Model");
         Integer result = ArverneModel.execute(
