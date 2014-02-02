@@ -42,10 +42,12 @@ public class ArverneMain {
             FileLogFactory logFactory         = new FileLogFactory(settings);
             MessageFactory messageFactory     = new DefaultMessageFactory();
             SocketInitiator socketInitiator   = new SocketInitiator(app,
-								    fileStoreFactory, settings, logFactory, messageFactory);
+                    fileStoreFactory, settings, logFactory, messageFactory);
             socketInitiator.start();
             SessionID sessionId = socketInitiator.getSessions().get(0);
+//            ArverneFIX.sendLogonRequest(sessionId);
 
+            int i = 0;
             do {
                 try {
                     Thread.sleep(1000);
@@ -53,24 +55,10 @@ public class ArverneMain {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } while ((!socketInitiator.isLoggedOn()));
+                i++;
+            } while ((!socketInitiator.isLoggedOn())/* && (i < 5) */);
 
-            // Successfully Logged on at this point -- enter run loop
-            int iter = 0;
-            do {
-                try {
-                    System.out.println("Main Thread ...");
-                    Thread.sleep(2000);
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                ++iter;
-            } while(iter < 5);
-
-            System.out.println("Sending logout");
-            socketInitiator.stop();
+            socketInitiator.stop(true);
 
         } catch (ConfigError e) {
             e.printStackTrace();
@@ -79,9 +67,7 @@ public class ArverneMain {
         } /*catch (SessionNotFound e) {
             e.printStackTrace();
             throw new RuntimeException("Session error");
-	    } */
-
-
+        } */
         /*
         l.info("Executing R Model");
         Integer result = ArverneModel.execute(
@@ -99,7 +85,7 @@ class ArverneModel {
 
     enum Models {
         CDF // Currently Cumulative Distribution Frequency is the only model supported
-	    };
+    };
 
     private final static String rPath  = "/usr/bin/";
     private final static String rBinary  = "Rscript";
@@ -112,20 +98,20 @@ class ArverneModel {
         try {
             String scriptName;
             switch (model) {
-	    case CDF:
-		scriptName = String.format(ArverneModel.cdfR);
-		break;
-	    default:
-		throw new RuntimeException("Unknown model type: " + model);
+                case CDF:
+                    scriptName = String.format(ArverneModel.cdfR);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown model type: " + model);
             }
 
             String cmd = String.format("%s%s lib/%s %s %s %s", // /usr/bin/Rscript lib/cdf.r x y z
-				       ArverneModel.rPath,
-				       ArverneModel.rBinary,
-				       scriptName,
-				       currentPrice,
-				       strikePrice,
-				       cost);
+                    ArverneModel.rPath,
+                    ArverneModel.rBinary,
+                    scriptName,
+                    currentPrice,
+                    strikePrice,
+                    cost);
             System.out.println(cmd);
             Process proc = Runtime.getRuntime().exec(cmd);
 
@@ -135,8 +121,8 @@ class ArverneModel {
             }
 
         } catch (IOException e) {
-	    e.printStackTrace();
-	    throw new RuntimeException("Unable to execute R script");
+            e.printStackTrace();
+            throw new RuntimeException("Unable to execute R script");
         }
 
         return Integer.parseInt(s.substring(4));
@@ -164,79 +150,85 @@ class ArverneLogger {
 class ArverneFIX extends MessageCracker implements Application {
 
     private Properties p;
-    
+
     public ArverneFIX() {
         p = loadProperties();
     }
 
     @Override
-	public void fromAdmin(Message arg0, SessionID arg1) throws FieldNotFound,
-								   IncorrectDataFormat, IncorrectTagValue, RejectLogon {
+    public void fromAdmin(Message arg0, SessionID arg1) throws FieldNotFound,
+            IncorrectDataFormat, IncorrectTagValue, RejectLogon {
         System.out.println("Successfully called fromAdmin for sessionId : "
-			   + arg0);
+                + arg0);
     }
 
     @Override
-	public void fromApp(Message arg0, SessionID arg1) throws FieldNotFound,
-								 IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+    public void fromApp(Message arg0, SessionID arg1) throws FieldNotFound,
+            IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
         System.out.println("Successfully called fromApp for sessionId : "
-			   + arg0);
+                + arg0);
     }
 
     @Override
-	public void onCreate(SessionID arg0) {
+    public void onCreate(SessionID arg0) {
         System.out.println("Successfully called onCreate for sessionId : "
-			   + arg0);
+                + arg0);
     }
 
     @Override
-	public void onLogon(SessionID arg0) {
+    public void onLogon(SessionID arg0) {
         System.out.println("Successfully logged on for sessionId : " + arg0);
     }
 
     @Override
-	public void onLogout(SessionID arg0) {
+    public void onLogout(SessionID arg0) {
         System.out.println("Successfully logged out for sessionId : " + arg0);
     }
 
     @Override
-	public void toAdmin(Message message, SessionID sessionId) {
+    public void toAdmin(Message message, SessionID sessionId) {
 
-	message.setString(quickfix.field.Username.FIELD, p.getProperty("username"));
-	message.setString(quickfix.field.Password.FIELD, p.getProperty("password"));
-        
-        System.out.println("Inside toAdmin");
-        System.out.println("Message: " + message.toString());
-	System.out.println("XML: " + message.toXML());
-	System.out.println("Header: " + message.getHeader());
-	System.out.println("Trailer: " + message.getTrailer());
+        message.setString(quickfix.field.Username.FIELD, p.getProperty("username"));
+        message.setString(quickfix.field.Password.FIELD, p.getProperty("password"));
+
+        try {
+            System.out.println("Inside toAdmin");
+            System.out.println("Message: " + message.toString());
+            System.out.println("XML: " + message.toXML(new DataDictionary("lib/quickfixj-all-1.5.3.jar!/FIX50SP2.xml")));
+            System.out.println("XML: " + message.toXML());
+            System.out.println("Header: " + message.getHeader());
+            System.out.println("Trailer: " + message.getTrailer());
+        } catch (ConfigError e) {
+            e.printStackTrace();
+            throw new RuntimeException("DataDictionary error");
+        }
     }
 
     @Override
-	public void toApp(Message arg0, SessionID arg1) throws DoNotSend {
+    public void toApp(Message arg0, SessionID arg1) throws DoNotSend {
         System.out.println("Message : " + arg0 + " for sessionid : " + arg1);
     }
 
-    //    public static void sendLogonRequest(SessionID sessionId)
-    //            throws SessionNotFound {
-    //
-    //        quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
-    //        quickfix.Message.Header header = logon.getHeader();
-    //
-    //        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
-    //        header.setField(new quickfix.field.MsgType("A"));
-    //
-    //        Properties p = loadProperties();
-    //        logon.set(new quickfix.field.Username(p.getProperty("username")));
-    //        logon.set(new quickfix.field.Password(p.getProperty("password")));
-    //
-    //        logon.set(new quickfix.field.HeartBtInt(30));
-    //        logon.set(new quickfix.field.ResetSeqNumFlag(true));
-    //        logon.set(new quickfix.field.DefaultApplVerID("FIXSP02"));
-    //
-    //        boolean sent = Session.sendToTarget(logon, sessionId);
-    //        System.out.println("Logon Message Sent : " + sent);
-    //    }
+//    public static void sendLogonRequest(SessionID sessionId)
+//            throws SessionNotFound {
+//
+//        quickfix.fixt11.Logon logon = new quickfix.fixt11.Logon();
+//        quickfix.Message.Header header = logon.getHeader();
+//
+//        header.setField(new quickfix.field.BeginString("FIXT.1.1"));
+//        header.setField(new quickfix.field.MsgType("A"));
+//
+//        Properties p = loadProperties();
+//        logon.set(new quickfix.field.Username(p.getProperty("username")));
+//        logon.set(new quickfix.field.Password(p.getProperty("password")));
+//
+//        logon.set(new quickfix.field.HeartBtInt(30));
+//        logon.set(new quickfix.field.ResetSeqNumFlag(true));
+//        logon.set(new quickfix.field.DefaultApplVerID("FIXSP02"));
+//
+//        boolean sent = Session.sendToTarget(logon, sessionId);
+//        System.out.println("Logon Message Sent : " + sent);
+//    }
 
     public static Properties loadProperties() {
         Properties p = new Properties();
